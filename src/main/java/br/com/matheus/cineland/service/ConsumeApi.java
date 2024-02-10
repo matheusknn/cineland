@@ -6,8 +6,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class ConsumeApi {
-    public String getData(String adress) {
+public class ConsumeApi { //classe com método de consumir uma API e retornar a resposta como json
+    public String getDatas(String adress) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(adress))
