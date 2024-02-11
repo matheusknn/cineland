@@ -16,7 +16,7 @@ public class Episode {//classe de negócio
         this.title = episodeDatas.title();
         this.number = episodeDatas.episodeNumber();
         try {
-            this.rating = Double.valueOf(episodeDatas.rating());
+            this.rating = Double.parseDouble(episodeDatas.rating());
         }catch (NumberFormatException e) {
             this.rating = 0.0;
         }

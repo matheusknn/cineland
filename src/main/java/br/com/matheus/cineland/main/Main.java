@@ -111,6 +111,7 @@ public class Main {
                 });
 
         Map<Integer, Double> ratingsBySeason = episodes.stream()
+                .filter(e-> e.getRating() > 0.0)
                 .collect(Collectors.groupingBy(Episode::getSeasonEpisode,
                         Collectors.averagingDouble(Episode::getRating)));
 
