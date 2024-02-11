@@ -116,6 +116,14 @@ public class Main {
                         Collectors.averagingDouble(Episode::getRating)));
 
         System.out.println(ratingsBySeason);
+
+        DoubleSummaryStatistics statistics = episodes.stream() //classe que possui algumas estatísticas pré-definidas
+                .filter(e-> e.getRating() > 0.0)
+                .collect(Collectors.summarizingDouble(Episode::getRating));
+        System.out.println("Média " + statistics.getAverage());
+        System.out.println("Melhor Episódio " + statistics.getMax());
+        System.out.println("Pior Episódio " + statistics.getMin());
+        System.out.println("Quantidade: " + statistics.getCount());
     }
 }
 
