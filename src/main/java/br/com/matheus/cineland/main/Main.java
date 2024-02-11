@@ -10,10 +10,7 @@ import br.com.matheus.cineland.service.ConvertDatas;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 
@@ -67,11 +64,14 @@ public class Main {
                 //ou .toList() --- toList retorna lista imutável
 
 //
-        System.out.println("\n-----------Top 5 melhores episódios de todas às temporadas------------");
+        System.out.println("\n-----------Top 10 melhores episódios de todas às temporadas------------");
         episodeSerieDatas.stream()
                 .filter( e-> !e.rating().equalsIgnoreCase("N/A"))
+                .peek(e-> System.out.println("Primeiro Filtro(N/A) " + e))
                 .sorted(Comparator.comparing(EpisodeSerieDatas::rating).reversed())
-                .limit(5)
+                .peek(e-> System.out.println("Ordenação " + e))
+                .limit(10)
+                .map(e-> e.title().toUpperCase())
                 .forEach(System.out::println);
 
         List<Episode> episodes = seasons.stream()
@@ -81,6 +81,19 @@ public class Main {
 
         episodes.forEach(System.out::println);
 
+
+        System.out.println("----------------ENCONTRAR EPISÓDIO POR NOME--------------");
+        var titleExcerpt = scan.nextLine();
+        Optional<Episode> episodeFound = episodes.stream()
+                .filter(e -> e.getTitle().toUpperCase().contains(titleExcerpt.toUpperCase()))
+                .findFirst(); //encontrar primeira referência com o trecho do usuário
+
+        if(episodeFound.isPresent()) {
+            System.out.println("Episódio Encontrado");
+            System.out.println("Temporada " + episodeFound.get().getSeasonEpisode());
+        }else{
+            System.out.println("Episódio Não Encontradp");
+        }
         System.out.println("\ndeseja ver os episódios lançandos à partir de qual ano? ");
         var userYear = scan.nextInt();
         scan.nextLine();
@@ -96,6 +109,12 @@ public class Main {
                                     " Data de lançamento: " + e.getReleased().format(formatter)
                     );
                 });
+
+        Map<Integer, Double> ratingsBySeason = episodes.stream()
+                .collect(Collectors.groupingBy(Episode::getSeasonEpisode,
+                        Collectors.averagingDouble(Episode::getRating)));
+
+        System.out.println(ratingsBySeason);
     }
 }
 
