@@ -1,18 +1,15 @@
 package br.com.matheus.cineland.main;
 
 //import br.com.matheus.cineland.domain.Episode;
-import br.com.matheus.cineland.domain.Episode;
-import br.com.matheus.cineland.domain.EpisodeSerieDatas;
+
 import br.com.matheus.cineland.domain.SeasonSerieDatas;
 import br.com.matheus.cineland.domain.SerieDatas;
 import br.com.matheus.cineland.service.ConsumeApi;
 import br.com.matheus.cineland.service.ConvertDatas;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.zip.DataFormatException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     private Scanner scan = new Scanner(System.in);
@@ -20,110 +17,68 @@ public class Main {
     private ConvertDatas converter = new ConvertDatas();//instanciando conversor de datas para instancia de classes
     private final String ADDRES = "https://www.omdbapi.com/?t=";//final = constante/imutável
     private final String API_KEY = "&apikey=6409843c";
+    private List<SerieDatas> serieDatas = new ArrayList<>();
 
     public void displayMenu() {
-        //representando dados da série
-        System.out.println("Digite o nome da série");
-        String userSerie = scan.nextLine();
-        String json = consumeApi.getDatas(ADDRES + userSerie.replace(" ", "+") + API_KEY);
+        var userOperation = -1;
+        while (userOperation != 0) {
+            System.out.println("\n-------------DIGITE O NÚMERO DA OPERAÇÃO QUE DESEJA REALIZAR---------------");
+            System.out.println("""
+                    1 - Buscar Série
+                    2 - Buscar Episódio De Uma Série
+                    3 - Ver Séries Buscadas
+                                    
+                    0 - Sair Do Programa
+                    """);
+            userOperation = Integer.parseInt(scan.nextLine());
 
-        SerieDatas datasSerie = converter.getDatas(json, SerieDatas.class);
-        System.out.println(datasSerie);
-
-		//representando temporada de uma serie
-		List<SeasonSerieDatas> seasons = new ArrayList<>();
-		for (int i = 1; i <= datasSerie.totalSeasons(); i++) {
-			String jsonSeasonSerieDatas = consumeApi.getDatas(ADDRES + userSerie.replace(" ", "+")+"&Season=" + i + API_KEY);
-			SeasonSerieDatas seasonData = converter.getDatas(jsonSeasonSerieDatas, SeasonSerieDatas.class);
-			seasons.add(seasonData);
-		}
-		seasons.forEach(System.out::println);
-//
-////        for (int i = 0; i < datasSerie.totalSeasons(); i++) {
-////            List<EpisodeSerieDatas> episodesSeason = seasons.get(i).episodesSerie();
-////            System.out.println(episodesSeason);
-////            for (int j = 0; j < episodesSeason.size(); j++) {
-////                System.out.println(episodesSeason.get(j).title());
-////            }
-////        }
-//
-        seasons.forEach(s -> s.episodesSerie().forEach(e-> System.out.println(e.title())));
-//
-////        List<String> nomes = Arrays.asList("Matheus", "Kenji", "Nishimura");
-//        //stream:
-////        nomes.stream()
-////                .sorted()//ordenar(ação intermediária), tudo que gera outra stream
-////                .limit(2)//pega os 2 primeiros elementos do array
-////                .forEach(System.out::println);
-////
-////        System.out.println(nomes);
-
-        List<EpisodeSerieDatas> episodeSerieDatas = seasons.stream()
-                .flatMap(s -> s.episodesSerie().stream())//pegar lista dentro de lista
-                .collect(Collectors.toList());
-                //ou .toList() --- toList retorna lista imutável
-
-//
-        System.out.println("\n-----------Top 10 melhores episódios de todas às temporadas------------");
-        episodeSerieDatas.stream()
-                .filter( e-> !e.rating().equalsIgnoreCase("N/A"))
-                .peek(e-> System.out.println("Primeiro Filtro(N/A) " + e))
-                .sorted(Comparator.comparing(EpisodeSerieDatas::rating).reversed())
-                .peek(e-> System.out.println("Ordenação " + e))
-                .limit(10)
-                .map(e-> e.title().toUpperCase())
-                .forEach(System.out::println);
-
-        List<Episode> episodes = seasons.stream()
-                .flatMap(s -> s.episodesSerie().stream()
-                .map(e -> new Episode(s.seasonNumber(), e)))
-                                .collect(Collectors.toList());
-
-        episodes.forEach(System.out::println);
-
-
-        System.out.println("----------------ENCONTRAR EPISÓDIO POR NOME--------------");
-        var titleExcerpt = scan.nextLine();
-        Optional<Episode> episodeFound = episodes.stream()
-                .filter(e -> e.getTitle().toUpperCase().contains(titleExcerpt.toUpperCase()))
-                .findFirst(); //encontrar primeira referência com o trecho do usuário
-
-        if(episodeFound.isPresent()) {
-            System.out.println("Episódio Encontrado");
-            System.out.println("Temporada " + episodeFound.get().getSeasonEpisode());
-        }else{
-            System.out.println("Episódio Não Encontradp");
+            switch (userOperation) {
+                case 1:
+                    searchSerie();
+                    break;
+                case 2:
+                    searchEpisodebySerie();
+                    break;
+                case 3 :
+                    displaySeriesSearched();
+                    break;
+                case 0:
+                    System.out.println("Saindo...");
+                    break;
+                default:
+                    System.out.println("Opção Inválida");
+            }
         }
-        System.out.println("\ndeseja ver os episódios lançandos à partir de qual ano? ");
-        var userYear = scan.nextInt();
-        scan.nextLine();
+    }
 
-        LocalDate userDataSearch = LocalDate.of(userYear, 1, 1);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        episodes.stream()
-                .filter(e-> e.getReleased() !=null && e.getReleased().isAfter(userDataSearch))//filtrar por datas
-                .forEach(e-> {
-                    System.out.println(
-                            "Temporada: " + e.getSeasonEpisode() +
-                                    " Episodio: " + e.getNumber() +
-                                    " Data de lançamento: " + e.getReleased().format(formatter)
-                    );
-                });
+    private void searchSerie() {
+        SerieDatas serieData = getSerieDatas();
+        serieDatas.add(serieData);
+        System.out.println(serieDatas);
+    }
 
-        Map<Integer, Double> ratingsBySeason = episodes.stream()
-                .filter(e-> e.getRating() > 0.0)
-                .collect(Collectors.groupingBy(Episode::getSeasonEpisode,
-                        Collectors.averagingDouble(Episode::getRating)));
+    private SerieDatas getSerieDatas() {
+        System.out.println("Digite o nome da série que deseja buscar");
+        var userSerie = scan.nextLine();
+        var json = consumeApi.getDatas(ADDRES + userSerie.replace(" ", "+")+ API_KEY);
+        SerieDatas serieDatas = converter.getDatas(json, SerieDatas.class);
+        return serieDatas;
+    }
 
-        System.out.println(ratingsBySeason);
+    private void searchEpisodebySerie() {
+        SerieDatas serieDatas = getSerieDatas();
+        List<SeasonSerieDatas>  seasonSerieDatas = new ArrayList<>();
 
-        DoubleSummaryStatistics statistics = episodes.stream() //classe que possui algumas estatísticas pré-definidas
-                .filter(e-> e.getRating() > 0.0)
-                .collect(Collectors.summarizingDouble(Episode::getRating));
-        System.out.println("Média " + statistics.getAverage());
-        System.out.println("Melhor Episódio " + statistics.getMax());
-        System.out.println("Pior Episódio " + statistics.getMin());
-        System.out.println("Quantidade: " + statistics.getCount());
+        for (int i = 1; i <= serieDatas.totalSeasons(); i++) {
+            var json = consumeApi.getDatas(ADDRES + serieDatas.title().replace(" ", "+") + "&Season=" + i + API_KEY);
+            var seasonSerieData = converter.getDatas(json, SeasonSerieDatas.class);
+            seasonSerieDatas.add(seasonSerieData);
+        }
+        seasonSerieDatas.forEach(System.out::println);
+    }
+
+    private void displaySeriesSearched() {
+        serieDatas.forEach(System.out::println);
     }
 }
 
