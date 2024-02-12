@@ -1,11 +1,20 @@
 package br.com.matheus.cineland.domain;
 
+import jakarta.persistence.*;
+
 import java.util.OptionalDouble;
 
+@Entity//indicando que a classe série será uma tabela do banco
+@Table(name = "series")//indicando o nome da tabela no banco
 public class Serie {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)//indicando que title não pode ser repetido na tabela
     private String title;
     private Integer totalSeasons;
     private Double rating;
+    @Enumerated(EnumType.STRING)//dizendo que se trata de um unum
     private Genre  genre;
     private String Actors;
     private String posterUrl;
@@ -75,6 +84,14 @@ public class Serie {
 
     public void setPlot(String plot) {
         this.plot = plot;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override
