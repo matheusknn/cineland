@@ -3,13 +3,16 @@ package br.com.matheus.cineland.main;
 //import br.com.matheus.cineland.domain.Episode;
 
 import br.com.matheus.cineland.domain.SeasonSerieDatas;
+import br.com.matheus.cineland.domain.Serie;
 import br.com.matheus.cineland.domain.SerieDatas;
 import br.com.matheus.cineland.service.ConsumeApi;
 import br.com.matheus.cineland.service.ConvertDatas;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     private Scanner scan = new Scanner(System.in);
@@ -78,7 +81,13 @@ public class Main {
     }
 
     private void displaySeriesSearched() {
-        serieDatas.forEach(System.out::println);
+        List<Serie> series = new ArrayList<>();
+        series = serieDatas.stream()
+                        .map(ds -> new Serie(ds))
+                                .collect(Collectors.toList());
+        series.stream()
+                .sorted(Comparator.comparing(Serie::getGenre))
+                .forEach(System.out::println);
     }
 }
 
