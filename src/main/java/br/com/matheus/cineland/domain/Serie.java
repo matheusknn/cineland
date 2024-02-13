@@ -21,7 +21,7 @@ public class Serie {
     private String Actors;
     private String posterUrl;
     private String plot;
-    @Transient//para não representar a entidade no banco
+    @OneToMany(mappedBy = "serie")
     private List<Episode> episodes = new ArrayList<>();
 
     public Serie() {}//construtor padrão para recuperar os dados o banco

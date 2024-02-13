@@ -1,15 +1,25 @@
 package br.com.matheus.cineland.domain;
 
+import jakarta.persistence.*;
+import org.hibernate.annotations.ManyToAny;
+
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+@Entity
+@Table(name = "episodios")
 public class Episode {//classe de negócio
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private Integer seasonEpisode;
     private String title;
     private Integer number;
     private Double rating;
     private LocalDate release;
+    @ManyToOne
+    private Serie serie;
 
     public Episode(Integer seasonEpisode, EpisodeSerieDatas episodeDatas) {
         this.seasonEpisode = seasonEpisode;
@@ -27,17 +37,29 @@ public class Episode {//classe de negócio
         }
     }
 
-    @Override
-    public String toString() {
-        return "Episode{" +
-                "seasonEpisode=" + seasonEpisode +
-                ", title='" + title + '\'' +
-                ", number=" + number +
-                ", rating=" + rating +
-                ", release=" + release +
-                '}';
+    public Long getId() {
+        return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDate getRelease() {
+        return release;
+    }
+
+    public void setRelease(LocalDate release) {
+        this.release = release;
+    }
+
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
     public Integer getSeasonEpisode() {
         return seasonEpisode;
     }
@@ -77,4 +99,17 @@ public class Episode {//classe de negócio
     public void setReleased(LocalDate released) {
         this.release = released;
     }
+
+
+    @Override
+    public String toString() {
+        return "Episode{" +
+                "seasonEpisode=" + seasonEpisode +
+                ", title='" + title + '\'' +
+                ", number=" + number +
+                ", rating=" + rating +
+                ", release=" + release +
+                '}';
+    }
+
 }
