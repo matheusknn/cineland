@@ -5,8 +5,10 @@ package br.com.matheus.cineland.main;
 import br.com.matheus.cineland.domain.SeasonSerieDatas;
 import br.com.matheus.cineland.domain.Serie;
 import br.com.matheus.cineland.domain.SerieDatas;
+import br.com.matheus.cineland.repository.SerieRepository;
 import br.com.matheus.cineland.service.ConsumeApi;
 import br.com.matheus.cineland.service.ConvertDatas;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,6 +23,11 @@ public class Main {
     private final String ADDRES = "https://www.omdbapi.com/?t=";//final = constante/imutável
     private final String API_KEY = "&apikey=6409843c";
     private List<SerieDatas> serieDatas = new ArrayList<>();
+    private SerieRepository serieRepository;
+
+    public Main(SerieRepository serieRepository) {
+        this.serieRepository = serieRepository;
+    }
 
     public void displayMenu() {
         var userOperation = -1;
@@ -56,7 +63,9 @@ public class Main {
 
     private void searchSerie() {
         SerieDatas serieData = getSerieDatas();
-        serieDatas.add(serieData);
+//        serieDatas.add(serieData);
+        Serie serie = new Serie(serieData);
+        serieRepository.save(serie); //salvando no banco
         System.out.println(serieDatas);
     }
 
@@ -81,10 +90,7 @@ public class Main {
     }
 
     private void displaySeriesSearched() {
-        List<Serie> series = new ArrayList<>();
-        series = serieDatas.stream()
-                        .map(ds -> new Serie(ds))
-                                .collect(Collectors.toList());
+        List<Serie> series = serieRepository.findAll();//puxa od dados do repositório e devolve um lIst genérico do que foi especificado no genérics
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenre))
                 .forEach(System.out::println);

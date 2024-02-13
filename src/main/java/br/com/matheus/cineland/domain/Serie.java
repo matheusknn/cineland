@@ -2,6 +2,8 @@ package br.com.matheus.cineland.domain;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalDouble;
 
 @Entity//indicando que a classe série será uma tabela do banco
@@ -19,7 +21,10 @@ public class Serie {
     private String Actors;
     private String posterUrl;
     private String plot;
+    @Transient//para não representar a entidade no banco
+    private List<Episode> episodes = new ArrayList<>();
 
+    public Serie() {}//construtor padrão para recuperar os dados o banco
     public Serie (SerieDatas s) {
         this.title = s.title();
         this.totalSeasons = s.totalSeasons();
@@ -92,6 +97,14 @@ public class Serie {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Episode> getEpisodes() {
+        return episodes;
+    }
+
+    public void setEpisodes(List<Episode> episodes) {
+        this.episodes = episodes;
     }
 
     @Override
