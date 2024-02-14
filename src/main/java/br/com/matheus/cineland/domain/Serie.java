@@ -18,10 +18,10 @@ public class Serie {
     private Double rating;
     @Enumerated(EnumType.STRING)//dizendo que se trata de um unum
     private Genre  genre;
-    private String Actors;
+    private String actors;
     private String posterUrl;
     private String plot;
-    @OneToMany(mappedBy = "serie")
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episode> episodes = new ArrayList<>();
 
     public Serie() {}//construtor padrão para recuperar os dados o banco
@@ -30,7 +30,7 @@ public class Serie {
         this.totalSeasons = s.totalSeasons();
         this.rating = OptionalDouble.of(Double.valueOf(s.rating())).orElse(0);
         this.genre = Genre.fromString(s.genres().split(",")[0].trim());
-        this.Actors = s.actors();
+        this.actors = s.actors();
         this.posterUrl = s.poster();
         this.plot = s.plot();
     }
@@ -68,11 +68,11 @@ public class Serie {
     }
 
     public String getActors() {
-        return Actors;
+        return actors;
     }
 
     public void setActors(String actors) {
-        Actors = actors;
+        actors = actors;
     }
 
     public String getPosterUrl() {
@@ -104,6 +104,7 @@ public class Serie {
     }
 
     public void setEpisodes(List<Episode> episodes) {
+        episodes.forEach(e -> e.setSerie(this));
         this.episodes = episodes;
     }
 
@@ -114,9 +115,10 @@ public class Serie {
                 ", totalSeasons=" + totalSeasons +
                 ", rating=" + rating +
                 ", genre=" + genre +
-                ", Actors='" + Actors + '\'' +
+                ", Actors='" + actors + '\'' +
                 ", posterUrl='" + posterUrl + '\'' +
                 ", plot='" + plot + '\'' +
+                ", episodes='" + episodes + '\'' +
                 '}';
     }
 }

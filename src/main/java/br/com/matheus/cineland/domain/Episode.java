@@ -21,6 +21,9 @@ public class Episode {//classe de negócio
     @ManyToOne
     private Serie serie;
 
+    public Episode() {
+
+    }
     public Episode(Integer seasonEpisode, EpisodeSerieDatas episodeDatas) {
         this.seasonEpisode = seasonEpisode;
         this.title = episodeDatas.title();
