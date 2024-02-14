@@ -36,6 +36,7 @@ public class Main {
                     3 - Ver Séries Buscadas
                     4 - Buscar série por título
                     5 - Buscar séries por ator
+                    6 - Listar as top 5 séries
                                     
                     0 - Sair Do Programa
                     """);
@@ -56,6 +57,10 @@ public class Main {
                     break;
                 case 5 :
                     searchSeriesByActor();
+                    break;
+                case 6 :
+                    listTop5Series();
+                    break;
                 case 0 :
                     System.out.println("Saindo...");
                     break;
@@ -136,6 +141,11 @@ public class Main {
         List<Serie> foundSeries = repository.findByActorsContainingIgnoreCaseAndRatingGreaterThanEqual(actorName, rating);
         System.out.println("Séries em que " + actorName + " trabalhou: ");
         foundSeries.forEach(s-> System.out.println(s.getTitle() + " avaliação: " + s.getRating()));
+    }
+
+    private void listTop5Series() {
+        List<Serie> seriesTop5 = repository.findTop5ByOrderByRatingDesc();
+        seriesTop5.forEach(s -> System.out.println(s.getTitle() + " avaliação " + s.getRating()));
     }
 }
 
