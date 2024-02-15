@@ -1,4 +1,4 @@
-## Estudos EM
+## Arquivo de estudos em:
 <p>funções lambdas</p>
 <p>streamss</p>
 <p>postgre</p>
